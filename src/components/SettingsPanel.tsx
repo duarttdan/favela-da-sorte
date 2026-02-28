@@ -4,8 +4,7 @@ import {
   Settings, 
   Trash2, 
   AlertTriangle, 
-  Save, 
-  RefreshCw,
+  Save,
   DollarSign,
   Package,
   Bell,
@@ -17,12 +16,13 @@ export function SettingsPanel({ currentUser }: { currentUser: User }) {
   const [commissionRate, setCommissionRate] = useState('20');
   const [lowStockThreshold, setLowStockThreshold] = useState('5');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [discordWebhook, setDiscordWebhook] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Apenas admin tem acesso
-  if (currentUser.role !== 'admin') {
+  // Apenas admin e dono tem acesso
+  if (!['admin', 'dono'].includes(currentUser.role)) {
     return (
       <div className="p-8">
         <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
@@ -55,6 +55,9 @@ export function SettingsPanel({ currentUser }: { currentUser: User }) {
           case 'notification_enabled':
             setNotificationsEnabled(setting.value === 'true');
             break;
+          case 'discord_webhook':
+            setDiscordWebhook(setting.value || '');
+            break;
         }
       });
     }
@@ -70,6 +73,7 @@ export function SettingsPanel({ currentUser }: { currentUser: User }) {
         { key: 'commission_rate', value: (parseFloat(commissionRate) / 100).toString() },
         { key: 'low_stock_threshold', value: lowStockThreshold },
         { key: 'notification_enabled', value: notificationsEnabled.toString() },
+        { key: 'discord_webhook', value: discordWebhook },
       ];
 
       for (const update of updates) {
@@ -83,7 +87,7 @@ export function SettingsPanel({ currentUser }: { currentUser: User }) {
           });
       }
 
-      setSuccess('Configurações salvas com sucesso!');
+      setSuccess('✅ Configurações salvas! Discord webhook configurado.');
     } catch (err: any) {
       setError(err.message || 'Erro ao salvar configurações');
     } finally {
@@ -240,6 +244,30 @@ export function SettingsPanel({ currentUser }: { currentUser: User }) {
               <p className="text-xs text-gray-500 mt-1">
                 Notificar quando estoque ≤ {lowStockThreshold} unidades
               </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase mb-2">
+                🔗 Discord Webhook URL
+              </label>
+              <input
+                type="url"
+                value={discordWebhook}
+                onChange={(e) => setDiscordWebhook(e.target.value)}
+                placeholder="https://discord.com/api/webhooks/..."
+                className="w-full p-3 bg-gray-50 rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                💡 Cole o webhook do Discord para envio automático de vendas
+              </p>
+              <a 
+                href="https://support.discord.com/hc/pt-br/articles/228383668-Usando-Webhooks" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-indigo-600 hover:underline mt-1 inline-block"
+              >
+                📖 Como criar um webhook?
+              </a>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">

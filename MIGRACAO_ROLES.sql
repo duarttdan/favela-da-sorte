@@ -225,6 +225,11 @@ ORDER BY
     ELSE 6
   END;
 
+-- 9. Adicionar configuração do Discord webhook
+INSERT INTO system_settings (key, value, description) 
+VALUES ('discord_webhook', '', 'URL do webhook do Discord para envio automático de vendas')
+ON CONFLICT (key) DO NOTHING;
+
 -- ============================================
 -- HIERARQUIA DE CARGOS:
 -- ============================================

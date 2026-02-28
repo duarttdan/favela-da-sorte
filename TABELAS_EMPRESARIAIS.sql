@@ -263,7 +263,8 @@ INSERT INTO system_settings (key, value, description) VALUES
 ('commission_rate', '0.20', 'Taxa de comissão dos vendedores (20%)'),
 ('low_stock_threshold', '5', 'Limite de estoque baixo para alertas'),
 ('backup_frequency', '"daily"', 'Frequência de backups automáticos'),
-('notification_enabled', 'true', 'Sistema de notificações ativado')
+('notification_enabled', 'true', 'Sistema de notificações ativado'),
+('discord_webhook', '', 'URL do webhook do Discord para envio automático de vendas')
 ON CONFLICT (key) DO NOTHING;
 
 -- Comentários nas tabelas

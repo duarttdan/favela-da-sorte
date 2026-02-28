@@ -87,50 +87,71 @@ export function SalesPanelMulti({ currentUser }: { currentUser: User }) {
   const generateMessage = () => {
     const total = getTotal();
     const commission = getCommission();
-    const clientInfo = buyerName.trim() ? buyerName : 'Cliente Anônimo';
-    const idInfo = buyerId.trim() ? `@cria ${buyerId}` : 'ID não informado';
+    const clientInfo = buyerName.trim() || 'Cliente Anônimo';
+    const idInfo = buyerId.trim() ? `@cria ${buyerId}` : 'Sem ID';
+    const vendedor = currentUser.username.toUpperCase();
 
     if (copyFormat === 'discord') {
       return `
-╔═══════════════════════════════╗
-║     🎯 VENDA REALIZADA 🎯     ║
-╚═══════════════════════════════╝
+╔═══════════════════════════════════════╗
+║        🎯 NOVA VENDA REALIZADA 🎯        ║
+╚═══════════════════════════════════════╝
 
-👤 **Cliente:** ${clientInfo}
-🆔 **ID:** ${idInfo}
-📦 **Itens:**
-${cart.map(c => `   ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
+👤 **CLIENTE:** ${clientInfo}
+🆔 **RECEBEDOR:** ${idInfo}
+💼 **VENDEDOR:** ${vendedor}
 
-💰 **Valor Total:** ${formatarMoeda(total)}
-💵 **Comissão:** ${formatarMoeda(commission)}
-📅 **Data:** ${new Date().toLocaleString('pt-BR')}
+📦 **ITENS VENDIDOS:**
+${cart.map(c => `   ${c.item.emoji} **${c.item.name}** x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
 
-✅ Vendedor: **${currentUser.username}**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 **VALOR TOTAL:** ${formatarMoeda(total)}
+💵 **COMISSÃO (${vendedor}):** ${formatarMoeda(commission)}
+💎 **LUCRO ORGANIZAÇÃO:** ${formatarMoeda(total - commission)}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 **DATA:** ${new Date().toLocaleString('pt-BR')}
+✅ **STATUS:** Venda Confirmada
+
+🎰 **FAVELA DA SORTE** 🍀
       `.trim();
     } else if (copyFormat === 'whatsapp') {
       return `
-🎯 *VENDA REALIZADA* 🎯
+🎯 *NOVA VENDA REALIZADA* 🎯
 
-👤 *Cliente:* ${clientInfo}
-🆔 *ID:* ${idInfo}
-📦 *Itens:*
+👤 *CLIENTE:* ${clientInfo}
+🆔 *RECEBEDOR:* ${idInfo}
+💼 *VENDEDOR:* ${vendedor}
+
+📦 *ITENS:*
 ${cart.map(c => `• ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
 
-💰 *Total:* ${formatarMoeda(total)}
-💵 *Comissão:* ${formatarMoeda(commission)}
+━━━━━━━━━━━━━━━━━━━━━━━━
+💰 *TOTAL:* ${formatarMoeda(total)}
+💵 *COMISSÃO:* ${formatarMoeda(commission)}
+💎 *LUCRO ORG:* ${formatarMoeda(total - commission)}
+━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ Vendedor: *${currentUser.username}*
+📅 ${new Date().toLocaleString('pt-BR')}
+✅ Venda Confirmada
+
+🎰 FAVELA DA SORTE 🍀
       `.trim();
     } else {
       return `
-VENDA REALIZADA
+NOVA VENDA REALIZADA
 
-Cliente: ${clientInfo}
-ID: ${idInfo}
-Itens: ${cart.map(c => `${c.item.name} x${c.quantity}`).join(', ')}
-Total: ${formatarMoeda(total)}
-Comissão: ${formatarMoeda(commission)}
-Vendedor: ${currentUser.username}
+CLIENTE: ${clientInfo}
+RECEBEDOR: ${idInfo}
+VENDEDOR: ${vendedor}
+
+ITENS: ${cart.map(c => `${c.item.name} x${c.quantity}`).join(', ')}
+
+TOTAL: ${formatarMoeda(total)}
+COMISSÃO: ${formatarMoeda(commission)}
+LUCRO ORG: ${formatarMoeda(total - commission)}
+
+DATA: ${new Date().toLocaleString('pt-BR')}
       `.trim();
     }
   };
@@ -164,10 +185,43 @@ Vendedor: ${currentUser.username}
           .eq('id', cartItem.item.id);
       }
 
+      // Gerar mensagem
+      const message = generateMessage();
+
       // Copiar para clipboard
-      navigator.clipboard.writeText(generateMessage());
+      navigator.clipboard.writeText(message);
+
+      // Tentar enviar para Discord
+      try {
+        const { data: settings } = await supabase
+          .from('system_settings')
+          .select('value')
+          .eq('key', 'discord_webhook')
+          .single();
+
+        if (settings?.value && settings.value.trim()) {
+          const webhookUrl = settings.value.trim();
+          
+          // Enviar para Discord
+          await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              content: message,
+              username: 'Favela da Sorte 🍀',
+              avatar_url: 'https://cdn-icons-png.flaticon.com/512/3588/3588592.png'
+            })
+          });
+
+          setSuccess(`✅ Venda realizada! ${formatarMoeda(getCommission())} de comissão - Enviado para Discord!`);
+        } else {
+          setSuccess(`✅ Venda realizada! ${formatarMoeda(getCommission())} de comissão - Copiado!`);
+        }
+      } catch (discordError) {
+        console.error('Erro ao enviar para Discord:', discordError);
+        setSuccess(`✅ Venda realizada! ${formatarMoeda(getCommission())} de comissão - Copiado! (Discord falhou)`);
+      }
       
-      setSuccess(`Venda realizada! ${formatarMoeda(getCommission())} de comissão - Copiado!`);
       setCart([]);
       setBuyerName('');
       setBuyerId('');
