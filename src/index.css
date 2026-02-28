@@ -14,16 +14,18 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  font-size: 14px; /* Tamanho base menor */
+  line-height: 1.5; /* Altura de linha mais compacta */
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Scrollbar personalizada */
+/* Scrollbar personalizada - mais fina */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -41,11 +43,11 @@ body {
   background: #a8a8a8;
 }
 
-/* Animações customizadas */
+/* Animações customizadas - mais rápidas */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(5px);
   }
   to {
     opacity: 1;
@@ -56,7 +58,7 @@ body {
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-10px);
   }
   to {
     opacity: 1;
@@ -65,16 +67,16 @@ body {
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .animate-slide-in {
-  animation: slideIn 0.4s ease-out;
+  animation: slideIn 0.25s ease-out;
 }
 
 /* Transições suaves para inputs */
 input, select, textarea, button {
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 /* Foco acessível */
@@ -84,4 +86,112 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid #6366f1;
   outline-offset: 2px;
+}
+
+/* Espaçamentos compactos globais */
+.compact-spacing h1,
+.compact-spacing h2,
+.compact-spacing h3 {
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.compact-spacing p {
+  margin-bottom: 0.5rem;
+}
+
+/* Cards mais compactos */
+.compact-card {
+  padding: 1rem !important;
+}
+
+.compact-card h3 {
+  font-size: 0.875rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Botões mais compactos */
+.compact-btn {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.75rem !important;
+}
+
+/* Inputs mais compactos */
+.compact-input {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* Grid mais denso */
+.dense-grid {
+  gap: 0.75rem !important;
+}
+
+/* Tabelas compactas */
+table.compact-table {
+  font-size: 0.875rem;
+}
+
+table.compact-table th,
+table.compact-table td {
+  padding: 0.5rem !important;
+}
+
+/* Badges menores */
+.compact-badge {
+  padding: 0.125rem 0.5rem !important;
+  font-size: 0.625rem !important;
+}
+
+/* Sidebar mais estreita */
+.compact-sidebar {
+  width: 220px !important;
+}
+
+/* Reduzir espaçamento entre elementos */
+.space-compact > * + * {
+  margin-top: 0.5rem !important;
+}
+
+/* Headers menores */
+.compact-header {
+  padding: 0.75rem 1rem !important;
+}
+
+/* Modais mais compactos */
+.compact-modal {
+  padding: 1.5rem !important;
+  max-width: 28rem !important;
+}
+
+/* Ícones menores */
+.compact-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Sombras mais sutis */
+.subtle-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Bordas mais finas */
+.thin-border {
+  border-width: 1px !important;
+}
+
+/* Texto mais compacto */
+.text-compact {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-compact-sm {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-compact-xs {
+  font-size: 0.625rem;
+  line-height: 0.875rem;
 }

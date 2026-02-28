@@ -19,7 +19,48 @@ export function ItemsPanel() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const commonEmojis = ['📦', '🔫', '💰', '❄️', '🧪', '🛡️', '🔗', '⌚', '👕', '💊', '🚗', '🏠'];
+  const commonEmojis = [
+    '📦', // Caixa/Pacote
+    '🔫', // Arma
+    '💰', // Dinheiro
+    '❄️', // Drogas/Ice
+    '🧪', // Química/Drogas
+    '🛡️', // Proteção/Colete
+    '🔗', // Corrente/Joia
+    '⌚', // Relógio
+    '👕', // Roupa
+    '💊', // Remédio/Droga
+    '🚗', // Carro
+    '🏠', // Casa/Propriedade
+    '💎', // Diamante/Joia
+    '🔪', // Faca/Arma branca
+    '🎒', // Mochila
+    '📱', // Celular
+    '💻', // Notebook
+    '🎮', // Console/Game
+    '🏍️', // Moto
+    '⛽', // Combustível
+    '🔋', // Bateria
+    '🔧', // Ferramenta
+    '🎯', // Alvo/Missão
+    '🎰', // Cassino/Jogo
+    '🍀', // Sorte
+    '💳', // Cartão
+    '🎫', // Ticket/Ingresso
+    '🗝️', // Chave
+    '📡', // Antena/Sinal
+    '🎭', // Máscara
+    '👑', // Coroa/VIP
+    '⭐', // Estrela/Premium
+    '🔥', // Fogo/Hot
+    '💵', // Nota de dólar
+    '💶', // Nota de euro
+    '🏆', // Troféu/Prêmio
+    '🎁', // Presente/Gift
+    '🔐', // Cadeado/Segurança
+    '🚨', // Alerta/Polícia
+    '🎪', // Circo/Evento
+  ];
 
   useEffect(() => {
     loadItems();
@@ -164,19 +205,28 @@ export function ItemsPanel() {
 
           <div>
             <label className="block text-xs font-black text-gray-400 uppercase mb-2">
-              Ícone
+              Ícone do Produto
             </label>
-            <select
-              value={emoji}
-              onChange={(e) => setEmoji(e.target.value)}
-              className="w-full p-3 bg-gray-50 rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none font-medium transition-all"
-            >
-              {commonEmojis.map((em) => (
-                <option key={em} value={em}>
-                  {em}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={emoji}
+                onChange={(e) => setEmoji(e.target.value)}
+                className="w-full p-3 bg-gray-50 rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none font-medium transition-all appearance-none cursor-pointer"
+                style={{ fontSize: '1.25rem' }}
+              >
+                {commonEmojis.map((em) => (
+                  <option key={em} value={em} style={{ fontSize: '1.25rem' }}>
+                    {em}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <Package size={16} />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Selecionado: <span className="text-2xl">{emoji}</span>
+            </p>
           </div>
 
           <button
