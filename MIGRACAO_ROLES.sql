@@ -93,7 +93,123 @@ FOREIGN KEY (user_id)
 REFERENCES users(id) 
 ON DELETE SET NULL;
 
--- 5. Verificar migração
+-- 5. Atualizar políticas RLS para items
+DROP POLICY IF EXISTS "Admins can insert items" ON items;
+DROP POLICY IF EXISTS "Admins can update items" ON items;
+DROP POLICY IF EXISTS "Admins can delete items" ON items;
+
+CREATE POLICY "Admins can insert items"
+ON items FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+CREATE POLICY "Admins can update items"
+ON items FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+CREATE POLICY "Admins can delete items"
+ON items FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+-- 6. Atualizar políticas RLS para sales
+DROP POLICY IF EXISTS "Users can view own sales" ON sales;
+DROP POLICY IF EXISTS "Admins can update sales" ON sales;
+DROP POLICY IF EXISTS "Admins can delete sales" ON sales;
+
+CREATE POLICY "Users can view own sales"
+ON sales FOR SELECT
+TO authenticated
+USING (
+  seller_id = auth.uid()
+  OR EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+CREATE POLICY "Admins can update sales"
+ON sales FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+CREATE POLICY "Admins can delete sales"
+ON sales FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'admin')
+  )
+);
+
+-- 7. Atualizar políticas RLS para users
+DROP POLICY IF EXISTS "Admins can insert users" ON users;
+DROP POLICY IF EXISTS "Admins can update users" ON users;
+DROP POLICY IF EXISTS "Admins can delete users" ON users;
+
+CREATE POLICY "Admins can insert users"
+ON users FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+CREATE POLICY "Admins can update users"
+ON users FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+);
+
+CREATE POLICY "Admins can delete users"
+ON users FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE users.id = auth.uid()
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
+  )
+  AND id != auth.uid()
+);
+
+-- 8. Verificar migração
 SELECT 
   role,
   COUNT(*) as total_usuarios

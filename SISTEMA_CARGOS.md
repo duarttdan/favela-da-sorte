@@ -217,6 +217,20 @@ Se você já tem um sistema rodando com os cargos antigos:
 
 ## 🆘 Suporte
 
+### Erro ao Criar Item (RLS Policy)
+
+Se você receber o erro:
+```
+new row violates row-level security policy for table "items"
+```
+
+**Solução:**
+1. Abra o Supabase SQL Editor
+2. Execute o arquivo `FIX_RLS_POLICIES.sql`
+3. Tente criar o item novamente
+
+Este erro ocorre porque as políticas RLS antigas usam os roles antigos (admin, setter, member). O script atualiza para os novos roles (dono, gerente, sub-lider, admin, membro).
+
 ### Erro ao Deletar Usuário
 
 Se você receber o erro:

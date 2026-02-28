@@ -186,6 +186,16 @@ membro: "bg-gradient-to-r from-gray-600 to-slate-600" // Cinza
 
 ## 🐛 Troubleshooting
 
+### Problema: Erro ao criar item (RLS policy violation)
+**Erro:** `new row violates row-level security policy for table "items"`
+
+**Solução:** Execute o script de correção no Supabase SQL Editor:
+```sql
+-- Copie e execute o arquivo: FIX_RLS_POLICIES.sql
+```
+
+Este script atualiza todas as políticas RLS para usar os novos roles (dono, gerente, sub-lider, admin, membro).
+
 ### Problema: Erro ao deletar usuário (foreign key constraint)
 **Erro:** `update or delete on table "users" violates foreign key constraint "audit_logs_user_id_fkey"`
 
