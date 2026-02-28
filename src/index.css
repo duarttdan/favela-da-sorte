@@ -1,25 +1,30 @@
 @import "tailwindcss";
 
-/* Efeito de Relevo Profissional para as Caixas */
+/* Mantém o padrão do seu app e adiciona o relevo */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #f9fafb; /* Cor de fundo cinza clara padrão */
+}
+
+/* Classe de Relevo que não quebra o build */
 .relevo-premium {
-  background-color: white;
-  border: 1px solid #f3f4f6; /* Substitui o border-gray-100 que deu erro */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important; /* Cor exata do gray-200 para evitar erro */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 0.75rem !important;
 }
 
-.relevo-premium:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
-
-/* Identidade Favela da Sorte */
+/* Estilo do Título Favela da Sorte */
 .brand-title {
   font-weight: 800;
-  letter-spacing: -0.025em;
+  color: #10b981; /* Verde esmeralda */
   text-transform: uppercase;
-  background: linear-gradient(to right, #10b981, #059669);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
