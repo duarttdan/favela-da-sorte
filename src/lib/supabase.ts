@@ -22,7 +22,7 @@ export const signOut = async () => {
 export interface User {
   id: string;
   email: string;
-  role: 'admin' | 'member' | 'setter';
+  role: 'dono' | 'gerente' | 'sub-lider' | 'admin' | 'membro';
   username: string;
   is_online: boolean;
   created_at: string;

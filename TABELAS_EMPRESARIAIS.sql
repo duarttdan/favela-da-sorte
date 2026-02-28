@@ -129,7 +129,7 @@ USING (
   EXISTS (
     SELECT 1 FROM users
     WHERE users.id = auth.uid()
-    AND users.role IN ('admin', 'setter')
+    AND users.role IN ('dono', 'gerente', 'sub-lider', 'admin')
   )
 );
 
@@ -138,7 +138,7 @@ ON audit_logs FOR INSERT
 TO authenticated
 WITH CHECK (true);
 
--- System Settings (apenas admins)
+-- System Settings (apenas admins e donos)
 ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admins can manage settings"
@@ -148,11 +148,11 @@ USING (
   EXISTS (
     SELECT 1 FROM users
     WHERE users.id = auth.uid()
-    AND users.role = 'admin'
+    AND users.role IN ('dono', 'admin')
   )
 );
 
--- Backups (apenas admins)
+-- Backups (apenas admins e donos)
 ALTER TABLE backups ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admins can manage backups"
@@ -162,7 +162,7 @@ USING (
   EXISTS (
     SELECT 1 FROM users
     WHERE users.id = auth.uid()
-    AND users.role = 'admin'
+    AND users.role IN ('dono', 'admin')
   )
 );
 
@@ -205,7 +205,7 @@ BEGIN
       'Estoque Baixo! ⚠️',
       'O item ' || NEW.name || ' está com apenas ' || NEW.quantity || ' unidades.'
     FROM users
-    WHERE users.role IN ('admin', 'setter');
+    WHERE users.role IN ('dono', 'gerente', 'sub-lider', 'admin');
   END IF;
   
   RETURN NEW;

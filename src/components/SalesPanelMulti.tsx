@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, User, Item } from '../lib/supabase';
-import { ShoppingCart, Plus, Minus, DollarSign, Package, Copy, Trash2, CheckCircle } from 'lucide-react';
+import { Plus, Minus, DollarSign, Package, Copy, Trash2, CheckCircle } from 'lucide-react';
 
 interface CartItem {
   item: Item;
@@ -25,6 +25,7 @@ export function SalesPanelMulti({ currentUser }: { currentUser: User }) {
   const [items, setItems] = useState<Item[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [buyerName, setBuyerName] = useState('');
+  const [buyerId, setBuyerId] = useState(''); // Novo: ID do cliente
   const [sales, setSales] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -86,6 +87,8 @@ export function SalesPanelMulti({ currentUser }: { currentUser: User }) {
   const generateMessage = () => {
     const total = getTotal();
     const commission = getCommission();
+    const clientInfo = buyerName.trim() ? buyerName : 'Cliente Anônimo';
+    const idInfo = buyerId.trim() ? `@cria ${buyerId}` : 'ID não informado';
 
     if (copyFormat === 'discord') {
       return `
@@ -93,7 +96,8 @@ export function SalesPanelMulti({ currentUser }: { currentUser: User }) {
 ║     🎯 VENDA REALIZADA 🎯     ║
 ╚═══════════════════════════════╝
 
-👤 **Cliente:** ${buyerName}
+👤 **Cliente:** ${clientInfo}
+🆔 **ID:** ${idInfo}
 📦 **Itens:**
 ${cart.map(c => `   ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
 
@@ -107,7 +111,8 @@ ${cart.map(c => `   ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarMo
       return `
 🎯 *VENDA REALIZADA* 🎯
 
-👤 *Cliente:* ${buyerName}
+👤 *Cliente:* ${clientInfo}
+🆔 *ID:* ${idInfo}
 📦 *Itens:*
 ${cart.map(c => `• ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
 
@@ -120,7 +125,8 @@ ${cart.map(c => `• ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarM
       return `
 VENDA REALIZADA
 
-Cliente: ${buyerName}
+Cliente: ${clientInfo}
+ID: ${idInfo}
 Itens: ${cart.map(c => `${c.item.name} x${c.quantity}`).join(', ')}
 Total: ${formatarMoeda(total)}
 Comissão: ${formatarMoeda(commission)}
@@ -130,8 +136,8 @@ Vendedor: ${currentUser.username}
   };
 
   const processSale = async () => {
-    if (cart.length === 0 || !buyerName.trim()) {
-      alert('Adicione itens e informe o nome do cliente');
+    if (cart.length === 0) {
+      alert('Adicione itens ao carrinho');
       return;
     }
 
@@ -145,7 +151,7 @@ Vendedor: ${currentUser.username}
         await supabase.from('sales').insert({
           item_id: cartItem.item.id,
           seller_id: currentUser.id,
-          buyer_name: buyerName.trim(),
+          buyer_name: buyerName.trim() || 'Cliente Anônimo',
           quantity: cartItem.quantity,
           total_price: totalPrice,
           seller_profit: sellerProfit,
@@ -164,6 +170,7 @@ Vendedor: ${currentUser.username}
       setSuccess(`Venda realizada! ${formatarMoeda(getCommission())} de comissão - Copiado!`);
       setCart([]);
       setBuyerName('');
+      setBuyerId('');
       await Promise.all([loadItems(), loadSales()]);
     } catch (error) {
       console.error(error);
@@ -264,13 +271,24 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
           {cart.length > 0 && (
             <>
               <div className="mt-4">
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Nome do Cliente</label>
+                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Nome do Cliente (Opcional)</label>
                 <input
                   type="text"
                   value={buyerName}
                   onChange={(e) => setBuyerName(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="Nome do cliente"
+                  placeholder="Nome do cliente (deixe vazio para anônimo)"
+                />
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-xs font-black text-gray-400 uppercase mb-2">ID do Cliente (Opcional)</label>
+                <input
+                  type="text"
+                  value={buyerId}
+                  onChange={(e) => setBuyerId(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                  placeholder="@cria 293 (ID para rastreamento)"
                 />
               </div>
 
@@ -304,7 +322,7 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
 
               <button
                 onClick={processSale}
-                disabled={loading || !buyerName.trim()}
+                disabled={loading}
                 className="w-full mt-4 bg-indigo-600 text-white py-4 rounded-2xl hover:bg-indigo-700 font-black uppercase flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {loading ? 'Processando...' : <><DollarSign className="h-5 w-5" /> Finalizar Venda</>}

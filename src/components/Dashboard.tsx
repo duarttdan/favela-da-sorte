@@ -29,20 +29,24 @@ import { SettingsPanel } from './SettingsPanel';
 
 const RoleBadge = ({ role }: { role: string }) => {
   const styles: Record<string, string> = {
-    admin: "bg-red-600 shadow-red-200",
-    setter: "bg-blue-600 shadow-blue-200",
-    member: "bg-gray-600 shadow-gray-200",
+    dono: "bg-gradient-to-r from-yellow-500 to-orange-500 shadow-yellow-200",
+    gerente: "bg-gradient-to-r from-purple-600 to-pink-600 shadow-purple-200",
+    'sub-lider': "bg-gradient-to-r from-blue-600 to-cyan-600 shadow-blue-200",
+    admin: "bg-gradient-to-r from-red-600 to-rose-600 shadow-red-200",
+    membro: "bg-gradient-to-r from-gray-600 to-slate-600 shadow-gray-200",
   };
   
   const roleLabels: Record<string, string> = {
-    admin: "ADMIN",
-    setter: "SETTER",
-    member: "MEMBRO",
+    dono: "👑 DONO",
+    gerente: "💼 GERENTE",
+    'sub-lider': "⭐ SUB-LÍDER",
+    admin: "🔴 ADMIN",
+    membro: "👤 MEMBRO",
   };
 
   return (
-    <span className={`px-2 py-0.5 rounded-md text-[9px] text-white font-black uppercase shadow-sm border border-white/20 ${styles[role?.toLowerCase()] || styles.member}`}>
-      {roleLabels[role?.toLowerCase()] || 'MEMBRO'}
+    <span className={`px-2 py-0.5 rounded-md text-[9px] text-white font-black uppercase shadow-sm border border-white/20 ${styles[role?.toLowerCase()] || styles.membro}`}>
+      {roleLabels[role?.toLowerCase()] || '👤 MEMBRO'}
     </span>
   );
 };
@@ -107,13 +111,13 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
     { id: 'metas', label: 'Metas', icon: Target, show: true },
     { id: 'relatorios', label: 'Relatórios', icon: FileText, show: true },
     { id: 'notificacoes', label: 'Notificações', icon: Bell, show: true },
-    { id: 'contabilidade', label: 'Financeiro', icon: Calculator, show: currentUser.role === 'admin' || currentUser.role === 'setter' },
-    { id: 'configuracoes', label: 'Configurações', icon: Settings, show: currentUser.role === 'admin' },
+    { id: 'contabilidade', label: 'Financeiro', icon: Calculator, show: ['dono', 'gerente', 'sub-lider', 'admin'].includes(currentUser.role) },
+    { id: 'configuracoes', label: 'Configurações', icon: Settings, show: ['dono', 'admin'].includes(currentUser.role) },
     { 
       id: 'admin', 
       label: 'Gestão', 
       icon: ShieldAlert, 
-      show: currentUser.role === 'admin' || currentUser.role === 'setter' 
+      show: ['dono', 'gerente', 'sub-lider', 'admin'].includes(currentUser.role)
     },
   ];
 
