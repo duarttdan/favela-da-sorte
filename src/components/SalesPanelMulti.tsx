@@ -215,7 +215,6 @@ PIX: @cria 293 CHATÃO LÍDER
         if (settings?.value && settings.value.trim()) {
           const webhookUrl = settings.value.trim();
           
-          // Enviar para Discord
           await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -274,7 +273,7 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
 
   return (
     <div className="p-4 md:p-8">
-      <h2 className="text-3xl font-black text-gray-800 mb-8 uppercase">🛒 Vendas - Múltiplos Itens</h2>
+      <h2 className="text-3xl font-black text-white mb-8 uppercase">🛒 Vendas - Múltiplos Itens</h2>
 
       {success && (
         <div className="fixed top-4 right-4 z-50 animate-fade-in">
@@ -293,8 +292,8 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Seleção de Itens */}
-        <div className="bg-white rounded-2xl p-6 border">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-600">
+        <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-400">
             <Package className="h-6 w-6" />
             Selecionar Itens
           </h3>
@@ -304,42 +303,42 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
               <button
                 key={item.id}
                 onClick={() => addToCart(item)}
-                className="p-4 border-2 border-gray-100 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                className="p-4 border-2 border-slate-700 rounded-2xl hover:border-indigo-500 hover:bg-slate-700 transition-all"
               >
                 <div className="text-3xl mb-1">{item.emoji}</div>
-                <div className="font-bold text-gray-800 text-sm">{item.name}</div>
-                <div className="text-sm font-black text-indigo-600">{formatarMoeda(item.price)}</div>
-                <div className="text-[10px] text-gray-400 uppercase mt-1">Estoque: {item.quantity}</div>
+                <div className="font-bold text-white text-sm">{item.name}</div>
+                <div className="text-sm font-black text-indigo-400">{formatarMoeda(item.price)}</div>
+                <div className="text-[10px] text-slate-400 uppercase mt-1">Estoque: {item.quantity}</div>
               </button>
             ))}
           </div>
 
           {/* Carrinho */}
-          <div className="border-t pt-4">
-            <h4 className="font-bold text-gray-700 mb-3">🛒 Carrinho ({cart.length} itens)</h4>
+          <div className="border-t border-slate-700 pt-4">
+            <h4 className="font-bold text-slate-300 mb-3">🛒 Carrinho ({cart.length} itens)</h4>
             {cart.length === 0 ? (
-              <p className="text-gray-400 text-center py-4">Carrinho vazio</p>
+              <p className="text-slate-500 text-center py-4">Carrinho vazio</p>
             ) : (
               <div className="space-y-2">
                 {cart.map((c) => (
-                  <div key={c.item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div key={c.item.id} className="flex items-center justify-between p-3 bg-slate-700 rounded-xl">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">{c.item.emoji}</span>
                       <div>
-                        <p className="font-bold text-sm">{c.item.name}</p>
-                        <p className="text-xs text-gray-500">{formatarMoeda(c.item.price)} cada</p>
+                        <p className="font-bold text-sm text-white">{c.item.name}</p>
+                        <p className="text-xs text-slate-400">{formatarMoeda(c.item.price)} cada</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateQuantity(c.item.id, -1)} className="p-1 hover:bg-gray-200 rounded">
+                      <button onClick={() => updateQuantity(c.item.id, -1)} className="p-1 hover:bg-slate-600 rounded text-white">
                         <Minus className="h-4 w-4" />
                       </button>
-                      <span className="font-bold w-8 text-center">{c.quantity}</span>
-                      <button onClick={() => updateQuantity(c.item.id, 1)} className="p-1 hover:bg-gray-200 rounded">
+                      <span className="font-bold w-8 text-center text-white">{c.quantity}</span>
+                      <button onClick={() => updateQuantity(c.item.id, 1)} className="p-1 hover:bg-slate-600 rounded text-white">
                         <Plus className="h-4 w-4" />
                       </button>
-                      <button onClick={() => removeFromCart(c.item.id)} className="p-1 hover:bg-red-100 rounded ml-2">
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                      <button onClick={() => removeFromCart(c.item.id)} className="p-1 hover:bg-red-900 rounded ml-2">
+                        <Trash2 className="h-4 w-4 text-red-400" />
                       </button>
                     </div>
                   </div>
@@ -351,36 +350,36 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
           {cart.length > 0 && (
             <>
               <div className="mt-4">
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Nome do Cliente (Opcional)</label>
+                <label className="block text-xs font-black text-slate-400 uppercase mb-2">Nome do Cliente (Opcional)</label>
                 <input
                   type="text"
                   value={buyerName}
                   onChange={(e) => setBuyerName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-white"
                   placeholder="Nome do cliente (deixe vazio para anônimo)"
                 />
               </div>
 
               <div className="mt-4">
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">ID do Cliente (Opcional)</label>
+                <label className="block text-xs font-black text-slate-400 uppercase mb-2">ID do Cliente (Opcional)</label>
                 <input
                   type="text"
                   value={buyerId}
                   onChange={(e) => setBuyerId(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-white"
                   placeholder="@cria 293 (ID para rastreamento)"
                 />
               </div>
 
               <div className="mt-4">
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Formato de Cópia</label>
+                <label className="block text-xs font-black text-slate-400 uppercase mb-2">Formato de Cópia</label>
                 <div className="flex gap-2">
                   {['discord', 'whatsapp', 'simple'].map((format) => (
                     <button
                       key={format}
                       onClick={() => setCopyFormat(format as any)}
                       className={`flex-1 py-2 rounded-xl font-bold text-xs uppercase ${
-                        copyFormat === format ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
+                        copyFormat === format ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300'
                       }`}
                     >
                       {format}
@@ -389,12 +388,12 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
                 </div>
               </div>
 
-              <div className="mt-4 bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
-                <div className="flex justify-between font-bold text-indigo-800 mb-2">
+              <div className="mt-4 bg-indigo-950 rounded-2xl p-4 border border-indigo-800">
+                <div className="flex justify-between font-bold text-indigo-300 mb-2">
                   <span>Total:</span>
                   <span>{formatarMoeda(getTotal())}</span>
                 </div>
-                <div className="flex justify-between text-green-600 font-black">
+                <div className="flex justify-between text-green-400 font-black">
                   <span>Sua Comissão (20%):</span>
                   <span>{formatarMoeda(getCommission())}</span>
                 </div>
@@ -412,33 +411,33 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
         </div>
 
         {/* Histórico */}
-        <div className="bg-white rounded-2xl p-6 border">
-          <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-600">
+        <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-400">
             <Package className="h-6 w-6" />
             Histórico
           </h3>
 
           <div className="space-y-3 max-h-[600px] overflow-y-auto">
             {sales.map((sale) => (
-              <div key={sale.id} className="bg-gray-50 border rounded-2xl p-4 group hover:shadow-md transition-all">
+              <div key={sale.id} className="bg-slate-700 border border-slate-600 rounded-2xl p-4 group hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{sale.item?.emoji}</span>
-                    <span className="font-bold">{sale.item?.name}</span>
-                    <span className="bg-white px-2 py-0.5 rounded text-[10px] font-black">x{sale.quantity}</span>
+                    <span className="font-bold text-white">{sale.item?.name}</span>
+                    <span className="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-black text-slate-300">x{sale.quantity}</span>
                   </div>
                   <button
                     onClick={() => copySale(sale)}
-                    className="p-2 hover:bg-indigo-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-2 hover:bg-indigo-900 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <Copy className="h-4 w-4 text-indigo-600" />
+                    <Copy className="h-4 w-4 text-indigo-400" />
                   </button>
                 </div>
-                <div className="text-xs text-gray-500">Cliente: {sale.buyer_name}</div>
-                <div className="text-[10px] text-gray-400">{formatarData(sale.created_at)}</div>
-                <div className="flex justify-between mt-2 pt-2 border-t">
-                  <span className="text-xs font-bold text-gray-400">TOTAL: {formatarMoeda(sale.total_price)}</span>
-                  <span className="text-sm font-black text-green-600">+{formatarMoeda(sale.seller_profit)}</span>
+                <div className="text-xs text-slate-400">Cliente: {sale.buyer_name}</div>
+                <div className="text-[10px] text-slate-500">{formatarData(sale.created_at)}</div>
+                <div className="flex justify-between mt-2 pt-2 border-t border-slate-600">
+                  <span className="text-xs font-bold text-slate-400">TOTAL: {formatarMoeda(sale.total_price)}</span>
+                  <span className="text-sm font-black text-green-400">+{formatarMoeda(sale.seller_profit)}</span>
                 </div>
               </div>
             ))}

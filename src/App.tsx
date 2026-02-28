@@ -21,10 +21,11 @@ export function App() {
           .from('users')
           .select('*')
           .eq('id', authUser.id)
-          .single();
+          .maybeSingle(); // Usar maybeSingle() ao invés de single()
 
         if (userError) {
           console.error('Erro ao buscar usuário:', userError);
+          setError('Erro ao carregar dados do usuário');
         } else if (userData) {
           setCurrentUser(userData);
           
@@ -32,8 +33,34 @@ export function App() {
           await supabase
             .from('users')
             .update({ is_online: true })
-            .eq('id', userData.id)
-            .then(() => console.log('Usuário marcado como online'));
+            .eq('id', userData.id);
+          
+          console.log('Usuário marcado como online');
+        } else {
+          // Usuário autenticado mas não existe na tabela users
+          console.log('Usuário não encontrado na tabela, criando...');
+          
+          // Criar registro do usuário
+          const username = authUser.email?.split('@')[0] || 'user';
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert({
+              id: authUser.id,
+              email: authUser.email,
+              username: username,
+              role: 'membro',
+              is_online: true,
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Erro ao criar usuário:', insertError);
+            setError('Erro ao criar registro do usuário');
+          } else if (newUser) {
+            setCurrentUser(newUser);
+            console.log('Usuário criado com sucesso');
+          }
         }
       }
     } catch (error) {

@@ -122,9 +122,9 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-slate-900 overflow-hidden">
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-gray-100 flex-col shadow-2xl z-10">
+      <aside className="hidden lg:flex w-64 bg-slate-800 border-r border-slate-700 flex-col shadow-2xl z-10">
         <div className="p-6 bg-gradient-to-br from-indigo-800 to-purple-950">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/10 rounded-xl border border-white/20">
@@ -136,12 +136,12 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
           </div>
         </div>
 
-        <div className="p-4 border-b border-gray-50 flex items-center gap-3 bg-gray-50/50">
+        <div className="p-4 border-b border-slate-700 flex items-center gap-3 bg-slate-900/50">
           <div className="h-10 w-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black">
             {currentUser.username.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-gray-800 truncate">
+            <p className="text-sm font-black text-white truncate">
               {currentUser.username}
             </p>
             <RoleBadge role={currentUser.role} />
@@ -156,7 +156,7 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${
                 activeTab === item.id
                   ? 'bg-indigo-600 text-white shadow-lg scale-[1.02]'
-                  : 'text-gray-500 hover:bg-gray-100'
+                  : 'text-slate-300 hover:bg-slate-700'
               }`}
             >
               <item.icon className="h-5 w-5" />
@@ -165,11 +165,11 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-slate-700">
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="w-full flex items-center gap-2 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-2xl transition-all disabled:opacity-50"
+            className="w-full flex items-center gap-2 px-4 py-3 text-red-400 font-bold hover:bg-red-950 rounded-2xl transition-all disabled:opacity-50"
           >
             <LogOut className="h-5 w-5" />
             <span>{loggingOut ? 'Saindo...' : 'Sair'}</span>
@@ -183,7 +183,7 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
-        <aside className={`absolute left-0 top-0 bottom-0 w-64 bg-white shadow-2xl transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`absolute left-0 top-0 bottom-0 w-64 bg-slate-800 shadow-2xl transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-6 bg-gradient-to-br from-indigo-800 to-purple-950 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/10 rounded-xl border border-white/20">
@@ -198,12 +198,12 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
             </button>
           </div>
 
-          <div className="p-4 border-b border-gray-50 flex items-center gap-3 bg-gray-50/50">
+          <div className="p-4 border-b border-slate-700 flex items-center gap-3 bg-slate-900/50">
             <div className="h-10 w-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black">
               {currentUser.username.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-sm font-black text-gray-800">{currentUser.username}</p>
+              <p className="text-sm font-black text-white">{currentUser.username}</p>
               <RoleBadge role={currentUser.role} />
             </div>
           </div>
@@ -219,7 +219,7 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${
                   activeTab === item.id
                     ? 'bg-indigo-600 text-white shadow-lg'
-                    : 'text-gray-500 hover:bg-gray-100'
+                    : 'text-slate-300 hover:bg-slate-700'
                 }`}
               >
                 <item.icon className="h-5 w-5" />
@@ -228,11 +228,11 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-gray-100">
+          <div className="p-4 border-t border-slate-700">
             <button
               onClick={handleLogout}
               disabled={loggingOut}
-              className="w-full flex items-center gap-2 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-2xl transition-all"
+              className="w-full flex items-center gap-2 px-4 py-3 text-red-400 font-bold hover:bg-red-950 rounded-2xl transition-all"
             >
               <LogOut className="h-5 w-5" />
               <span>{loggingOut ? 'Saindo...' : 'Sair'}</span>
@@ -244,16 +244,16 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
-        <header className="lg:hidden bg-white border-b border-gray-100 p-4 flex items-center justify-between">
+        <header className="lg:hidden bg-slate-800 border-b border-slate-700 p-4 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            className="p-2 hover:bg-slate-700 rounded-xl transition-colors"
           >
-            <Menu className="h-6 w-6 text-gray-700" />
+            <Menu className="h-6 w-6 text-slate-200" />
           </button>
           <div className="flex items-center gap-2">
-            <Clover className="h-5 w-5 text-green-600" />
-            <h1 className="font-black text-gray-800 uppercase text-sm tracking-tighter">
+            <Clover className="h-5 w-5 text-green-400" />
+            <h1 className="font-black text-white uppercase text-sm tracking-tighter">
               Favela da Sorte
             </h1>
           </div>

@@ -7,40 +7,42 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #f9fafb;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  font-size: 14px; /* Tamanho base menor */
-  line-height: 1.5; /* Altura de linha mais compacta */
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e2e8f0;
 }
 
 #root {
   min-height: 100vh;
+  background: transparent;
 }
 
-/* Scrollbar personalizada - mais fina */
+/* Scrollbar personalizada - tema dark */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1e293b;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c7c7c7;
+  background: #475569;
   border-radius: 10px;
   transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #64748b;
 }
 
 /* Animações customizadas - mais rápidas */

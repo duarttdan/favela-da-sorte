@@ -24,6 +24,7 @@ export interface User {
   email: string;
   role: 'dono' | 'gerente' | 'sub-lider' | 'admin' | 'membro';
   username: string;
+  display_name?: string; // Nome de exibição (pode ser diferente do username)
   is_online: boolean;
   first_login?: boolean;
   created_at: string;

@@ -120,13 +120,13 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
             role: role.toLowerCase(), 
             username: username,
             is_online: false,
-            first_login: false // Já definir como false, senha é definitiva
+            first_login: false
           }
         ]);
 
         if (insertError) throw insertError;
 
-        setSuccess(`✅ Usuário criado com sucesso!\n📧 Email: ${email}\n👤 Usuário: ${username}\n🔑 Senha: ${userPassword}\n\n⚠️ ANOTE ESTA SENHA!`);
+        setSuccess(`✅ Usuário criado com sucesso!\n📧 Email: ${email}\n👤 Usuário: ${username}\n🔑 Senha: ${userPassword}\n\n⚠️ ANOTE ESTAS INFORMAÇÕES!`);
         setEmail('');
         setRole('membro');
         await loadUsers();
