@@ -117,7 +117,7 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
       id: 'admin', 
       label: 'Gestão', 
       icon: ShieldAlert, 
-      show: ['dono', 'gerente', 'sub-lider', 'admin'].includes(currentUser.role)
+      show: ['dono', 'admin'].includes(currentUser.role) // APENAS ADMIN E DONO
     },
   ];
 

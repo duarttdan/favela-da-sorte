@@ -3,37 +3,59 @@ import { supabase, User as SupabaseUser } from '../lib/supabase';
 import { Users, UserPlus, Trash2, Mail, AlertCircle, CheckCircle, X, ArrowUp, ArrowDown, Crown, Shield, Star, User as UserIcon } from 'lucide-react';
 
 const RoleBadge = ({ role }: { role: string }) => {
-  const styles: Record<string, string> = {
-    dono: "bg-gradient-to-r from-yellow-500 to-orange-500 shadow-yellow-200",
-    gerente: "bg-gradient-to-r from-purple-600 to-pink-600 shadow-purple-200",
-    'sub-lider': "bg-gradient-to-r from-blue-600 to-cyan-600 shadow-blue-200",
-    admin: "bg-gradient-to-r from-red-600 to-rose-600 shadow-red-200",
-    membro: "bg-gradient-to-r from-gray-600 to-slate-600 shadow-gray-200",
-  };
-  
-  const roleLabels: Record<string, string> = {
-    dono: "👑 DONO",
-    gerente: "💼 GERENTE",
-    'sub-lider': "⭐ SUB-LÍDER",
-    admin: "🔴 ADMIN",
-    membro: "👤 MEMBRO",
+  const configs: Record<string, { gradient: string; shadow: string; glow: string; icon: any; label: string }> = {
+    dono: {
+      gradient: "from-yellow-400 via-orange-500 to-red-500",
+      shadow: "shadow-yellow-500/50",
+      glow: "before:bg-yellow-500/20",
+      icon: Crown,
+      label: "DONO"
+    },
+    gerente: {
+      gradient: "from-purple-500 via-pink-500 to-rose-500",
+      shadow: "shadow-purple-500/50",
+      glow: "before:bg-purple-500/20",
+      icon: Shield,
+      label: "GERENTE"
+    },
+    'sub-lider': {
+      gradient: "from-blue-500 via-cyan-500 to-teal-500",
+      shadow: "shadow-blue-500/50",
+      glow: "before:bg-blue-500/20",
+      icon: Star,
+      label: "SUB-LÍDER"
+    },
+    admin: {
+      gradient: "from-red-500 via-rose-500 to-pink-500",
+      shadow: "shadow-red-500/50",
+      glow: "before:bg-red-500/20",
+      icon: Shield,
+      label: "ADMIN"
+    },
+    membro: {
+      gradient: "from-gray-500 via-slate-500 to-zinc-500",
+      shadow: "shadow-gray-500/50",
+      glow: "before:bg-gray-500/20",
+      icon: UserIcon,
+      label: "MEMBRO"
+    }
   };
 
-  const roleIcons: Record<string, any> = {
-    dono: Crown,
-    gerente: Shield,
-    'sub-lider': Star,
-    admin: Shield,
-    membro: UserIcon,
-  };
-
-  const Icon = roleIcons[role?.toLowerCase()] || UserIcon;
+  const config = configs[role?.toLowerCase()] || configs.membro;
+  const Icon = config.icon;
 
   return (
-    <span className={`px-3 py-1.5 rounded-xl text-[10px] text-white font-black uppercase shadow-lg border border-white/30 flex items-center gap-1 ${styles[role?.toLowerCase()] || styles.membro}`}>
-      <Icon size={12} />
-      {roleLabels[role?.toLowerCase()] || '👤 MEMBRO'}
-    </span>
+    <div className="relative inline-flex">
+      <div className={`absolute inset-0 bg-gradient-to-r ${config.gradient} blur-md opacity-75 ${config.shadow} animate-pulse`}></div>
+      <div className={`relative px-4 py-2 bg-gradient-to-r ${config.gradient} rounded-xl shadow-lg ${config.shadow} border border-white/20 backdrop-blur-sm`}>
+        <div className="flex items-center gap-2">
+          <Icon size={14} className="text-white drop-shadow-lg" />
+          <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow-lg">
+            {config.label}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -50,6 +72,9 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
   const [role, setRole] = useState('membro');
   const [newRole, setNewRole] = useState('membro');
 
+  // APENAS ADMIN E DONO TEM ACESSO
+  const isAdminOrOwner = ['admin', 'dono'].includes(currentUser.role?.toLowerCase());
+
   // Hierarquia de cargos (maior número = mais poder)
   const roleHierarchy: Record<string, number> = {
     'dono': 5,
@@ -62,6 +87,39 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
   const canManageUser = (targetRole: string) => {
     return roleHierarchy[currentUser.role] > roleHierarchy[targetRole];
   };
+
+  // Bloquear acesso se não for Admin ou Dono
+  if (!isAdminOrOwner) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="max-w-md w-full">
+          <div className="bg-gradient-to-br from-red-900/50 to-orange-900/50 backdrop-blur-xl border border-red-500/30 rounded-3xl p-8 text-center shadow-2xl">
+            <div className="mb-6">
+              <div className="inline-flex p-4 bg-red-500/20 rounded-full mb-4">
+                <Shield className="h-12 w-12 text-red-400" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-2 uppercase">
+                Acesso Negado
+              </h3>
+              <div className="inline-block px-4 py-2 bg-red-500/20 rounded-xl border border-red-500/30 mb-4">
+                <p className="text-sm font-bold text-red-300">
+                  Seu cargo: <RoleBadge role={currentUser.role} />
+                </p>
+              </div>
+            </div>
+            <p className="text-red-200 mb-6 leading-relaxed">
+              Apenas <span className="font-black text-white">ADMIN</span> e <span className="font-black text-white">DONO</span> podem acessar o painel de gestão de usuários.
+            </p>
+            <div className="p-4 bg-black/20 rounded-xl border border-red-500/20">
+              <p className="text-xs text-red-300 font-medium">
+                💡 Entre em contato com um administrador para solicitar permissões
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     loadUsers();
