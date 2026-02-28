@@ -1,30 +1,7 @@
 @import "tailwindcss";
 
-/* Mantém o padrão do seu app e adiciona o relevo */
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-}
-
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #f9fafb; /* Cor de fundo cinza clara padrão */
-}
-
-/* Classe de Relevo que não quebra o build */
-.relevo-premium {
-  background-color: white !important;
-  border: 1px solid #e5e7eb !important; /* Cor exata do gray-200 para evitar erro */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  border-radius: 0.75rem !important;
-}
-
-/* Estilo do Título Favela da Sorte */
-.brand-title {
-  font-weight: 800;
-  color: #10b981; /* Verde esmeralda */
-  text-transform: uppercase;
+  background-color: #f9fafb;
+  font-family: sans-serif;
 }
