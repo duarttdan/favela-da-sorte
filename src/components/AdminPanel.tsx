@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, User as SupabaseUser } from '../lib/supabase';
-import { Users, UserPlus, Trash2, Mail, AlertCircle, CheckCircle, X, ArrowUp } from 'lucide-react';
+import { Users, UserPlus, Trash2, Mail, AlertCircle, CheckCircle, X, ArrowUp, ArrowDown, Crown, Shield, Star, User as UserIcon } from 'lucide-react';
 
 const RoleBadge = ({ role }: { role: string }) => {
   const styles: Record<string, string> = {
@@ -8,9 +8,7 @@ const RoleBadge = ({ role }: { role: string }) => {
     gerente: "bg-gradient-to-r from-purple-600 to-pink-600 shadow-purple-200",
     'sub-lider': "bg-gradient-to-r from-blue-600 to-cyan-600 shadow-blue-200",
     admin: "bg-gradient-to-r from-red-600 to-rose-600 shadow-red-200",
-    setter: "bg-gradient-to-r from-indigo-600 to-blue-600 shadow-indigo-200",
     membro: "bg-gradient-to-r from-gray-600 to-slate-600 shadow-gray-200",
-    member: "bg-gradient-to-r from-gray-600 to-slate-600 shadow-gray-200",
   };
   
   const roleLabels: Record<string, string> = {
@@ -18,13 +16,22 @@ const RoleBadge = ({ role }: { role: string }) => {
     gerente: "💼 GERENTE",
     'sub-lider': "⭐ SUB-LÍDER",
     admin: "🔴 ADMIN",
-    setter: "🔵 SETTER",
     membro: "👤 MEMBRO",
-    member: "👤 MEMBRO",
   };
 
+  const roleIcons: Record<string, any> = {
+    dono: Crown,
+    gerente: Shield,
+    'sub-lider': Star,
+    admin: Shield,
+    membro: UserIcon,
+  };
+
+  const Icon = roleIcons[role?.toLowerCase()] || UserIcon;
+
   return (
-    <span className={`px-3 py-1 rounded-lg text-[10px] text-white font-black uppercase shadow-lg border border-white/30 ${styles[role?.toLowerCase()] || styles.member}`}>
+    <span className={`px-3 py-1.5 rounded-xl text-[10px] text-white font-black uppercase shadow-lg border border-white/30 flex items-center gap-1 ${styles[role?.toLowerCase()] || styles.membro}`}>
+      <Icon size={12} />
       {roleLabels[role?.toLowerCase()] || '👤 MEMBRO'}
     </span>
   );
@@ -160,16 +167,13 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
     if (!confirm(`Tem certeza que deseja remover "${username}" da equipe?`)) return;
 
     try {
-      // Primeiro, tentar deletar do Auth do Supabase (se possível)
-      // Nota: Isso requer permissões de admin no Supabase
-      
       const { error } = await supabase.from('users').delete().eq('id', id);
       
       if (error) {
         // Se o erro for de foreign key constraint
-        if (error.message.includes('foreign key constraint')) {
-          setError('⚠️ Erro: Execute o script FIX_DELETE_USER.sql no Supabase SQL Editor primeiro!');
-          console.error('Foreign key constraint error. Run FIX_DELETE_USER.sql');
+        if (error.message.includes('foreign key constraint') || error.message.includes('referenced')) {
+          setError(`⚠️ ERRO: Este usuário tem vendas registradas!\n\n📋 SOLUÇÃO:\n1. Vá no Supabase SQL Editor\n2. Execute o script: FIX_DELETE_USER_FINAL.sql\n3. Tente deletar novamente\n\nOu mantenha o usuário e apenas desative-o.`);
+          console.error('Foreign key constraint error. Execute FIX_DELETE_USER_FINAL.sql');
         } else {
           throw error;
         }
@@ -259,62 +263,117 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
       )}
 
       {/* Lista de Usuários */}
-      <div className="bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
-        <div className="p-4 md:p-6 border-b border-slate-700 bg-slate-900/50 flex items-center gap-2">
-          <Users className="text-indigo-400" size={20} />
-          <h3 className="font-black text-white uppercase text-sm tracking-tighter">
-            Usuários do Sistema ({users.length})
-          </h3>
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
+        <div className="p-6 border-b border-slate-700 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-500/20 rounded-xl">
+              <Users className="text-indigo-400" size={24} />
+            </div>
+            <div>
+              <h3 className="font-black text-white uppercase text-lg tracking-tight">
+                Equipe Ativa
+              </h3>
+              <p className="text-xs text-slate-400 font-medium">
+                {users.length} {users.length === 1 ? 'membro' : 'membros'} cadastrados
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className="px-3 py-1 bg-green-500/20 rounded-lg border border-green-500/30">
+              <span className="text-xs font-black text-green-400">
+                {users.filter(u => u.is_online).length} Online
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="p-4 md:p-6">
+        <div className="p-6">
           {users.length === 0 ? (
-            <div className="text-center py-10 text-slate-400 font-bold">
-              Nenhum usuário cadastrado
+            <div className="text-center py-16">
+              <Users className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-400 font-bold text-lg">Nenhum usuário cadastrado</p>
+              <p className="text-slate-500 text-sm mt-2">Clique em "Criar Usuário" para começar</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {users.map((user) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+              {users.map((user, index) => (
                 <div
                   key={user.id}
-                  className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-700 border border-slate-600 rounded-2xl hover:shadow-lg hover:border-indigo-500 transition-all group gap-4"
+                  className="group relative bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-2xl p-5 hover:shadow-2xl hover:border-indigo-500 transition-all duration-300 hover:scale-[1.02] animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="h-12 w-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black border-2 border-slate-600 shadow-sm flex-shrink-0">
-                      {user.username?.charAt(0).toUpperCase() || 'U'}
+                  {/* Indicador Online */}
+                  {user.is_online && (
+                    <div className="absolute top-3 right-3">
+                      <div className="relative">
+                        <div className="h-3 w-3 bg-green-500 rounded-full"></div>
+                        <div className="absolute inset-0 h-3 w-3 bg-green-500 rounded-full animate-ping"></div>
+                      </div>
                     </div>
+                  )}
+
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      <div className="h-16 w-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg border-2 border-slate-600">
+                        {user.username?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      {user.id === currentUser.id && (
+                        <div className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-1">
+                          <Crown size={12} className="text-white" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-white truncate">
-                        {user.username}
-                      </p>
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase">
-                        <Mail size={10} />
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-black text-white text-lg truncate">
+                          {user.username}
+                        </p>
+                        {user.id === currentUser.id && (
+                          <span className="px-2 py-0.5 bg-yellow-500/20 border border-yellow-500/30 rounded text-[9px] font-black text-yellow-400">
+                            VOCÊ
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                        <Mail size={12} />
                         <span className="truncate">{user.email}</span>
                       </div>
+                      <RoleBadge role={user.role} />
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
-                    <RoleBadge role={user.role} />
-                    {user.id !== currentUser.id && canManageUser(user.role) && (
-                      <>
-                        <button 
-                          onClick={() => handlePromoteUser(user)}
-                          className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-950 rounded-xl transition-all"
-                          title="Alterar cargo"
-                        >
-                          <ArrowUp size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteUser(user.id, user.username, user.role)}
-                          className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-950 rounded-xl transition-all"
-                          title="Remover usuário"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </>
-                    )}
-                  </div>
+                  {/* Ações */}
+                  {user.id !== currentUser.id && canManageUser(user.role) && (
+                    <div className="mt-4 pt-4 border-t border-slate-600 flex gap-2">
+                      <button 
+                        onClick={() => handlePromoteUser(user)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all font-bold text-sm"
+                        title="Alterar cargo"
+                      >
+                        <ArrowUp size={16} />
+                        Promover
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteUser(user.id, user.username, user.role)}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all font-bold text-sm"
+                        title="Remover usuário"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+
+                  {user.id === currentUser.id && (
+                    <div className="mt-4 pt-4 border-t border-slate-600">
+                      <div className="flex items-center justify-center gap-2 text-slate-400 text-sm">
+                        <Shield size={14} />
+                        <span className="font-medium">Este é você</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -400,11 +459,11 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
 
       {/* Modal de Promoção/Rebaixamento */}
       {showPromoteModal && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-fade-in">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl animate-fade-in">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl md:text-2xl font-black text-gray-800 flex items-center gap-2">
-                <ArrowUp className="text-indigo-600" />
+              <h3 className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+                <ArrowUp className="text-indigo-400" />
                 <span>Alterar Cargo</span>
               </h3>
               <button
@@ -413,68 +472,88 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
                   setSelectedUser(null);
                   setError(null);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-slate-700 rounded-xl transition-colors"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
             
-            <div className="mb-6 p-4 bg-gray-50 rounded-2xl">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-black">
+            {/* Info do Usuário */}
+            <div className="mb-6 p-4 bg-slate-700/50 rounded-2xl border border-slate-600">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="h-14 w-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-xl">
                   {selectedUser.username?.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <p className="font-black text-gray-800">{selectedUser.username}</p>
-                  <p className="text-xs text-gray-500">{selectedUser.email}</p>
+                <div className="flex-1">
+                  <p className="font-black text-white text-lg">{selectedUser.username}</p>
+                  <p className="text-xs text-slate-400">{selectedUser.email}</p>
                 </div>
               </div>
-              <div className="mt-3">
-                <span className="text-xs text-gray-400 uppercase font-bold">Cargo Atual:</span>
-                <div className="mt-1">
-                  <RoleBadge role={selectedUser.role} />
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400 uppercase font-bold">Cargo Atual:</span>
+                <RoleBadge role={selectedUser.role} />
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">
-                  Novo Cargo
-                </label>
-                <select 
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-bold transition-all"
-                  value={newRole}
-                  onChange={(e) => setNewRole(e.target.value)}
-                >
-                  <option value="membro">👤 Membro (Vendedor)</option>
-                  {roleHierarchy[currentUser.role] >= 2 && <option value="admin">🔴 Admin</option>}
-                  {roleHierarchy[currentUser.role] >= 3 && <option value="sub-lider">⭐ Sub-Líder</option>}
-                  {roleHierarchy[currentUser.role] >= 4 && <option value="gerente">💼 Gerente</option>}
-                  {roleHierarchy[currentUser.role] >= 5 && <option value="dono">👑 Dono</option>}
-                </select>
+            {/* Seleção de Cargo */}
+            <div className="space-y-3 mb-6">
+              <label className="block text-xs font-black text-slate-400 uppercase mb-3">
+                Selecione o Novo Cargo
+              </label>
+              
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { value: 'membro', label: 'Membro', icon: '👤', desc: 'Vendedor básico', level: 1 },
+                  { value: 'admin', label: 'Admin', icon: '🔴', desc: 'Configurações', level: 2, minLevel: 2 },
+                  { value: 'sub-lider', label: 'Sub-Líder', icon: '⭐', desc: 'Supervisão', level: 3, minLevel: 3 },
+                  { value: 'gerente', label: 'Gerente', icon: '💼', desc: 'Gestão de equipe', level: 4, minLevel: 4 },
+                  { value: 'dono', label: 'Dono', icon: '👑', desc: 'Acesso total', level: 5, minLevel: 5 },
+                ].filter(r => !r.minLevel || roleHierarchy[currentUser.role] >= r.minLevel).map((roleOption) => (
+                  <button
+                    key={roleOption.value}
+                    type="button"
+                    onClick={() => setNewRole(roleOption.value)}
+                    className={`p-4 rounded-2xl border-2 transition-all text-left ${
+                      newRole === roleOption.value
+                        ? 'border-indigo-500 bg-indigo-500/20 shadow-lg shadow-indigo-500/20'
+                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">{roleOption.icon}</div>
+                      <div className="flex-1">
+                        <p className="font-black text-white text-sm">{roleOption.label}</p>
+                        <p className="text-xs text-slate-400">{roleOption.desc}</p>
+                      </div>
+                      {newRole === roleOption.value && (
+                        <CheckCircle className="text-indigo-400" size={20} />
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="flex gap-3 pt-4">
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setShowPromoteModal(false);
-                    setSelectedUser(null);
-                    setError(null);
-                  }}
-                  className="flex-1 px-6 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-gray-200 transition-all"
-                >
-                  Cancelar
-                </button>
-                <button 
-                  onClick={handleChangeRole}
-                  disabled={loading || newRole === selectedUser.role}
-                  className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Alterando...' : 'Confirmar'}
-                </button>
-              </div>
+            {/* Botões */}
+            <div className="flex gap-3">
+              <button 
+                type="button"
+                onClick={() => {
+                  setShowPromoteModal(false);
+                  setSelectedUser(null);
+                  setError(null);
+                }}
+                className="flex-1 px-6 py-4 bg-slate-700 text-slate-300 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-600 transition-all"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleChangeRole}
+                disabled={loading || newRole === selectedUser.role}
+                className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-900/50 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Alterando...' : 'Confirmar'}
+              </button>
             </div>
           </div>
         </div>
