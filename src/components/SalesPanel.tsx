@@ -1,35 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase, User, Item, Sale } from '../lib/supabase';
 import { ShoppingCart, Plus, Minus, DollarSign, Package } from 'lucide-react';
 
 // Interface para as props do componente SalesPanel
 interface SalesPanelProps {
-  currentUser: User; // Usuário que está realizando a venda
+  currentUser: User;
 }
 
-// Componente de Painel de Vendas
+// 1. FORMATADOR DE MOEDA PROFISSIONAL
+const formatarMoeda = (valor: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(valor);
+};
+
 export function SalesPanel({ currentUser }: SalesPanelProps) {
-  // Estados para controle do painel de vendas
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [buyerName, setBuyerName] = useState('');
-  const [sales, setSales] = useState<Sale[]>([]);
+  const [sales, setSales] = useState<any[]>([]); // Usamos any aqui para aceitar o join do item
   const [loading, setLoading] = useState(false);
 
-  // Efeito para carregar itens e vendas ao montar o componente
   useEffect(() => {
     loadItems();
     loadSales();
   }, []);
 
-  // Função para carregar itens disponíveis para venda
   const loadItems = async () => {
     try {
       const { data, error } = await supabase
         .from('items')
         .select('*')
-        .gt('quantity', 0) // Apenas itens com estoque > 0
+        .gt('quantity', 0)
         .order('name', { ascending: true });
 
       if (error) throw error;
@@ -39,7 +43,6 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
     }
   };
 
-  // Função para carregar histórico de vendas do usuário
   const loadSales = async () => {
     try {
       const { data, error } = await supabase
@@ -62,7 +65,6 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
     }
   };
 
-  // Função para processar uma venda
   const processSale = async () => {
     if (!selectedItem || quantity < 1 || !buyerName.trim()) {
       alert('Preencha todos os campos e selecione um item');
@@ -77,12 +79,10 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
     setLoading(true);
 
     try {
-      // Calcula valores da venda com divisão 20%/80%
       const totalPrice = selectedItem.price * quantity;
-      const sellerProfit = totalPrice * 0.2; // 20% para vendedor
-      const ownerProfit = totalPrice * 0.8; // 80% para dono
+      const sellerProfit = totalPrice * 0.2;
+      const ownerProfit = totalPrice * 0.8;
 
-      // Registra a venda no banco de dados
       const { error: saleError } = await supabase.from('sales').insert({
         item_id: selectedItem.id,
         seller_id: currentUser.id,
@@ -95,7 +95,6 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
 
       if (saleError) throw saleError;
 
-      // Atualiza estoque do item
       const { error: updateError } = await supabase
         .from('items')
         .update({ quantity: selectedItem.quantity - quantity })
@@ -103,7 +102,6 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
 
       if (updateError) throw updateError;
 
-      // Limpa formulário e recarrega dados
       setSelectedItem(null);
       setQuantity(1);
       setBuyerName('');
@@ -121,20 +119,20 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
 
   return (
     <div className="p-8">
-      <h2 className="text-3xl font-bold text-gray-800 mb-8">Registrar Venda</h2>
+      <h2 className="text-3xl font-black text-gray-800 mb-8 uppercase tracking-tighter italic">
+        Registrar Venda
+      </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Formulário de Venda */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <ShoppingCart className="h-6 w-6 text-blue-600" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-600">
+            <ShoppingCart className="h-6 w-6" />
             Nova Venda
           </h3>
 
           <div className="space-y-4">
-            {/* Seleção de Item */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-black text-gray-400 uppercase mb-2">
                 Selecione o Item
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -145,16 +143,16 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
                       setSelectedItem(item);
                       setQuantity(1);
                     }}
-                    className={`p-3 border-2 rounded-lg transition-colors ${
+                    className={`p-4 border-2 rounded-2xl transition-all ${
                       selectedItem?.id === item.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-indigo-500 bg-indigo-50 scale-[1.02]'
+                        : 'border-gray-100 hover:border-gray-200 bg-gray-50'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{item.emoji}</div>
-                    <div className="font-medium text-sm">{item.name}</div>
-                    <div className="text-xs text-gray-500">R$ {item.price.toFixed(2)}</div>
-                    <div className="text-xs text-gray-500">Estoque: {item.quantity}</div>
+                    <div className="text-3xl mb-1">{item.emoji}</div>
+                    <div className="font-bold text-gray-800">{item.name}</div>
+                    <div className="text-sm font-black text-indigo-600">{formatarMoeda(item.price)}</div>
+                    <div className="text-[10px] text-gray-400 uppercase mt-1">Estoque: {item.quantity}</div>
                   </button>
                 ))}
               </div>
@@ -162,131 +160,106 @@ export function SalesPanel({ currentUser }: SalesPanelProps) {
 
             {selectedItem && (
               <>
-                {/* Quantidade */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-black text-gray-400 uppercase mb-2">
                     Quantidade
                   </label>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                      className="p-3 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
                     <input
                       type="number"
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-20 text-center px-3 py-2 border border-gray-300 rounded-lg"
-                      min="1"
-                      max={selectedItem.quantity}
+                      readOnly
+                      className="w-20 text-center font-bold text-xl bg-transparent"
                     />
                     <button
                       onClick={() => setQuantity(Math.min(selectedItem.quantity, quantity + 1))}
-                      className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                      className="p-3 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* Nome do Comprador */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-black text-gray-400 uppercase mb-2">
                     Nome do Comprador
                   </label>
                   <input
                     type="text"
                     value={buyerName}
                     onChange={(e) => setBuyerName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
                     placeholder="Nome do cliente"
                   />
                 </div>
 
-                {/* Resumo da Venda */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold mb-2">Resumo da Venda</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span>Item:</span>
-                      <span>{selectedItem.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Quantidade:</span>
-                      <span>{quantity}</span>
-                    </div>
-                    <div className="flex justify-between">
+                <div className="bg-indigo-50 rounded-2xl p-5 border border-indigo-100">
+                  <h4 className="font-black text-indigo-900 text-xs uppercase mb-3">Resumo da Venda</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between font-bold text-indigo-800">
                       <span>Total:</span>
-                      <span>R$ {(selectedItem.price * quantity).toFixed(2)}</span>
+                      <span>{formatarMoeda(selectedItem.price * quantity)}</span>
                     </div>
-                    <div className="flex justify-between text-green-600 font-medium pt-2 border-t">
-                      <span>Seu Lucro (20%):</span>
-                      <span>R$ {(selectedItem.price * quantity * 0.2).toFixed(2)}</span>
+                    <div className="flex justify-between text-green-600 font-black pt-2 border-t border-indigo-200">
+                      <span>Sua Comissão (20%):</span>
+                      <span>{formatarMoeda(selectedItem.price * quantity * 0.2)}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Botão de Processar Venda */}
                 <button
                   onClick={processSale}
                   disabled={loading || !buyerName.trim()}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-indigo-600 text-white py-4 rounded-2xl hover:bg-indigo-700 transition-all font-black uppercase tracking-widest shadow-lg shadow-indigo-200 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Processando...
-                    </>
-                  ) : (
-                    <>
-                      <DollarSign className="h-5 w-5" />
-                      Processar Venda
-                    </>
-                  )}
+                  {loading ? 'Processando...' : <><DollarSign className="h-5 w-5" /> Finalizar Venda</>}
                 </button>
               </>
             )}
           </div>
         </div>
 
-        {/* Histórico de Vendas */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <Package className="h-6 w-6 text-purple-600" />
-            Suas Últimas Vendas
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-600">
+            <Package className="h-6 w-6" />
+            Seu Histórico
           </h3>
 
-          {sales.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">Nenhuma venda registrada ainda</p>
-          ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {sales.map((sale) => (
-                <div key={sale.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+            {sales.length === 0 ? (
+              <p className="text-gray-400 text-center py-8 font-medium">Nenhuma venda hoje</p>
+            ) : (
+              sales.map((sale) => (
+                <div key={sale.id} className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{sale.item?.emoji || '📦'}</span>
-                      <span className="font-medium">{sale.item?.name || 'Item'}</span>
-                      <span className="text-sm text-gray-500">x{sale.quantity}</span>
+                      <span className="text-2xl">{sale.item?.emoji || '📦'}</span>
+                      <span className="font-bold text-gray-800">{sale.item?.name || 'Item'}</span>
+                      <span className="bg-white px-2 py-0.5 rounded text-[10px] font-black text-gray-400 border border-gray-100">x{sale.quantity}</span>
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-[10px] font-black text-gray-300 uppercase">
                       {new Date(sale.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="text-sm text-gray-600">
-                    <div>Comprador: {sale.buyer_name}</div>
-                    <div className="flex justify-between mt-1">
-                      <span>Total: R$ {sale.total_price.toFixed(2)}</span>
-                      <span className="text-green-600 font-medium">
-                        Seu lucro: R$ {sale.seller_profit.toFixed(2)}
+                  <div className="space-y-1">
+                    <div className="text-xs font-bold text-gray-500 uppercase">Cliente: {sale.buyer_name}</div>
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200/50">
+                      <span className="text-xs font-bold text-gray-400">TOTAL: {formatarMoeda(sale.total_price)}</span>
+                      <span className="text-sm font-black text-green-600">
+                        +{formatarMoeda(sale.seller_profit)}
                       </span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
