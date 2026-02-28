@@ -25,6 +25,7 @@ export interface User {
   role: 'dono' | 'gerente' | 'sub-lider' | 'admin' | 'membro';
   username: string;
   is_online: boolean;
+  first_login?: boolean;
   created_at: string;
 }
 

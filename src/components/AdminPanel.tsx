@@ -113,13 +113,14 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
             email: email.trim().toLowerCase(), 
             role: role.toLowerCase(), 
             username: username,
-            is_online: false 
+            is_online: false,
+            first_login: true // Marcar como primeiro login
           }
         ]);
 
         if (insertError) throw insertError;
 
-        setSuccess(`✅ Usuário criado!\n📧 Email: ${email}\n🔑 Senha: ${tempPassword}\n\n⚠️ COPIE ESTA SENHA AGORA!`);
+        setSuccess(`✅ Usuário criado!\n📧 Email: ${email}\n🔑 Senha: ${tempPassword}\n\n⚠️ COPIE ESTA SENHA AGORA!\n\n💡 O usuário será solicitado a trocar a senha no primeiro login.`);
         setEmail('');
         setRole('member');
         await loadUsers();
