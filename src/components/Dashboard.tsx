@@ -13,17 +13,19 @@ import {
   Home,
   FileText,
   Target,
-  Bell
+  Bell,
+  Settings
 } from 'lucide-react';
 
 import { DashboardHome } from './DashboardHome';
 import { AccountingPanel } from './AccountingPanel';
-import { SalesPanel } from './SalesPanel';
+import { SalesPanelMulti } from './SalesPanelMulti';
 import { ItemsPanel } from './ItemsPanel';
 import { AdminPanel } from './AdminPanel';
 import { ReportsPanel } from './ReportsPanel';
 import { GoalsPanel } from './GoalsPanel';
 import { NotificationsPanel } from './NotificationsPanel';
+import { SettingsPanel } from './SettingsPanel';
 
 const RoleBadge = ({ role }: { role: string }) => {
   const styles: Record<string, string> = {
@@ -78,7 +80,7 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
       case 'home':
         return <DashboardHome currentUser={currentUser} />;
       case 'vendas': 
-        return <SalesPanel currentUser={currentUser} />;
+        return <SalesPanelMulti currentUser={currentUser} />;
       case 'contabilidade': 
         return <AccountingPanel />;
       case 'itens': 
@@ -89,6 +91,8 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
         return <GoalsPanel currentUser={currentUser} />;
       case 'notificacoes':
         return <NotificationsPanel currentUser={currentUser} />;
+      case 'configuracoes':
+        return <SettingsPanel currentUser={currentUser} />;
       case 'admin': 
         return <AdminPanel currentUser={currentUser} />;
       default: 
@@ -104,6 +108,7 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
     { id: 'relatorios', label: 'Relatórios', icon: FileText, show: true },
     { id: 'notificacoes', label: 'Notificações', icon: Bell, show: true },
     { id: 'contabilidade', label: 'Financeiro', icon: Calculator, show: currentUser.role === 'admin' || currentUser.role === 'setter' },
+    { id: 'configuracoes', label: 'Configurações', icon: Settings, show: currentUser.role === 'admin' },
     { 
       id: 'admin', 
       label: 'Gestão', 
