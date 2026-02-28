@@ -87,41 +87,49 @@ export function SalesPanelMulti({ currentUser }: { currentUser: User }) {
   const generateMessage = () => {
     const total = getTotal();
     const commission = getCommission();
+    const ownerProfit = total - commission;
     const clientInfo = buyerName.trim() || 'Cliente Anônimo';
-    const idInfo = buyerId.trim() ? `@cria ${buyerId}` : 'Sem ID';
+    const idInfo = buyerId.trim() ? buyerId : '';
     const vendedor = currentUser.username.toUpperCase();
 
     if (copyFormat === 'discord') {
       return `
 ╔═══════════════════════════════════════╗
-║        🎯 NOVA VENDA REALIZADA 🎯        ║
+║        💰 VENDA REALIZADA 💰           ║
 ╚═══════════════════════════════════════╝
 
-👤 **CLIENTE:** ${clientInfo}
-🆔 **RECEBEDOR:** ${idInfo}
-💼 **VENDEDOR:** ${vendedor}
+👤 **VENDEDOR:** ${vendedor}
+💼 **CLIENTE:** ${clientInfo}
+${idInfo ? `🆔 **ID CLIENTE:** @cria ${idInfo}` : ''}
 
 📦 **ITENS VENDIDOS:**
 ${cart.map(c => `   ${c.item.emoji} **${c.item.name}** x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💰 **VALOR TOTAL:** ${formatarMoeda(total)}
-💵 **COMISSÃO (${vendedor}):** ${formatarMoeda(commission)}
-💎 **LUCRO ORGANIZAÇÃO:** ${formatarMoeda(total - commission)}
+💵 **COMISSÃO VENDEDOR:** ${formatarMoeda(commission)} (20%)
+💎 **LUCRO ORGANIZAÇÃO:** ${formatarMoeda(ownerProfit)} (80%)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📅 **DATA:** ${new Date().toLocaleString('pt-BR')}
-✅ **STATUS:** Venda Confirmada
+✅ **STATUS:** Confirmado
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💸 **REPASSAR PARA VENDEDOR:** ${formatarMoeda(commission)}
+💸 **REPASSAR PARA ORGANIZAÇÃO:** ${formatarMoeda(ownerProfit)}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔑 **PIX:** @cria 293 CHATÃO LÍDER
 
 🎰 **FAVELA DA SORTE** 🍀
       `.trim();
     } else if (copyFormat === 'whatsapp') {
       return `
-🎯 *NOVA VENDA REALIZADA* 🎯
+💰 *VENDA REALIZADA* 💰
 
-👤 *CLIENTE:* ${clientInfo}
-🆔 *RECEBEDOR:* ${idInfo}
-💼 *VENDEDOR:* ${vendedor}
+👤 *VENDEDOR:* ${vendedor}
+💼 *CLIENTE:* ${clientInfo}
+${idInfo ? `🆔 *ID CLIENTE:* @cria ${idInfo}` : ''}
 
 📦 *ITENS:*
 ${cart.map(c => `• ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarMoeda(c.item.price * c.quantity)}`).join('\n')}
@@ -129,29 +137,34 @@ ${cart.map(c => `• ${c.item.emoji} ${c.item.name} x${c.quantity} - ${formatarM
 ━━━━━━━━━━━━━━━━━━━━━━━━
 💰 *TOTAL:* ${formatarMoeda(total)}
 💵 *COMISSÃO:* ${formatarMoeda(commission)}
-💎 *LUCRO ORG:* ${formatarMoeda(total - commission)}
+💎 *LUCRO ORG:* ${formatarMoeda(ownerProfit)}
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-📅 ${new Date().toLocaleString('pt-BR')}
-✅ Venda Confirmada
+💸 *REPASSAR VENDEDOR:* ${formatarMoeda(commission)}
+💸 *REPASSAR ORG:* ${formatarMoeda(ownerProfit)}
+
+🔑 *PIX:* @cria 293 CHATÃO LÍDER
 
 🎰 FAVELA DA SORTE 🍀
       `.trim();
     } else {
       return `
-NOVA VENDA REALIZADA
+VENDA REALIZADA
 
-CLIENTE: ${clientInfo}
-RECEBEDOR: ${idInfo}
 VENDEDOR: ${vendedor}
+CLIENTE: ${clientInfo}
+${idInfo ? `ID CLIENTE: @cria ${idInfo}` : ''}
 
 ITENS: ${cart.map(c => `${c.item.name} x${c.quantity}`).join(', ')}
 
 TOTAL: ${formatarMoeda(total)}
 COMISSÃO: ${formatarMoeda(commission)}
-LUCRO ORG: ${formatarMoeda(total - commission)}
+LUCRO ORG: ${formatarMoeda(ownerProfit)}
 
-DATA: ${new Date().toLocaleString('pt-BR')}
+REPASSAR VENDEDOR: ${formatarMoeda(commission)}
+REPASSAR ORG: ${formatarMoeda(ownerProfit)}
+
+PIX: @cria 293 CHATÃO LÍDER
       `.trim();
     }
   };
@@ -213,14 +226,19 @@ DATA: ${new Date().toLocaleString('pt-BR')}
             })
           });
 
-          setSuccess(`✅ Venda realizada! ${formatarMoeda(getCommission())} de comissão - Enviado para Discord!`);
+          setSuccess(`💰 ${formatarMoeda(getCommission())} de comissão - Enviado para Discord!`);
         } else {
-          setSuccess(`✅ Venda realizada! ${formatarMoeda(getCommission())} de comissão - Copiado!`);
+          setSuccess(`💰 ${formatarMoeda(getCommission())} de comissão - Copiado!`);
         }
       } catch (discordError) {
         console.error('Erro ao enviar para Discord:', discordError);
-        setSuccess(`✅ Venda realizada! ${formatarMoeda(getCommission())} de comissão - Copiado! (Discord falhou)`);
+        setSuccess(`💰 ${formatarMoeda(getCommission())} de comissão - Copiado!`);
       }
+      
+      // Limpar mensagem de sucesso após 5 segundos
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
       
       setCart([]);
       setBuyerName('');
@@ -259,9 +277,17 @@ ${sale.item?.emoji || '📦'} **Produto:** ${sale.item?.name || 'Item'}
       <h2 className="text-3xl font-black text-gray-800 mb-8 uppercase">🛒 Vendas - Múltiplos Itens</h2>
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center gap-2">
-          <CheckCircle className="h-5 w-5" />
-          {success}
+        <div className="fixed top-4 right-4 z-50 animate-fade-in">
+          <div className="bg-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-md">
+            <div className="flex-shrink-0">
+              <CheckCircle className="h-8 w-8" />
+            </div>
+            <div>
+              <p className="font-black text-lg">✅ Venda Realizada!</p>
+              <p className="text-sm opacity-90">{success}</p>
+              <p className="text-xs opacity-75 mt-1">📋 Mensagem copiada para área de transferência</p>
+            </div>
+          </div>
         </div>
       )}
 
