@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, User, Item, Sale } from '../lib/supabase';
+import { supabase, User, Item } from '../lib/supabase';
 import { ShoppingCart, Plus, Minus, DollarSign, Package } from 'lucide-react';
 
 // Interface para as props do componente SalesPanel
