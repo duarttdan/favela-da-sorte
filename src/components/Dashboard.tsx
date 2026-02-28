@@ -38,20 +38,21 @@ export function Dashboard({ currentUser }: { currentUser: User }) {
   };
 
   const renderContent = () => {
-    switch (activeTab) {
-      case 'contabilidade': return <AccountingPanel />;
-      case 'vendas': return <SalesPanel currentUser={currentUser} />;
-      case 'itens': return <ItemsPanel />;
-      case 'admin': 
-        // Corrigido para "admin" ou "setter" (conforme seu erro do TS)
-        if (currentUser.role === 'admin' || currentUser.role === 'setter') {
-          return <AdminPanel currentUser={currentUser} />;
-        }
-        return <div className="p-8 text-red-500 font-bold text-center">Acesso restrito.</div>;
-      case 'perfil': return <div className="p-8 font-bold">Perfil de {currentUser.username}</div>;
-      default: return <SalesPanel currentUser={currentUser} />;
-    }
-  };
+  switch (activeTab) {
+    case 'vendas': 
+      return <SalesPanel currentUser={currentUser} />;
+    case 'contabilidade': 
+      return <AccountingPanel />;
+    case 'itens': 
+      return <ItemsPanel />;
+    case 'admin': 
+      return <AdminPanel currentUser={currentUser} />;
+    default: 
+      // Se cair aqui, ele mostra a mensagem de erro. 
+      // Mude para o painel de vendas para garantir que sempre mostre algo.
+      return <SalesPanel currentUser={currentUser} />;
+  }
+};
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
