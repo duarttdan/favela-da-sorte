@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 -- Tabela de Logs de Auditoria
 CREATE TABLE IF NOT EXISTS audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   action TEXT NOT NULL,
   entity_type TEXT NOT NULL,
   entity_id UUID,

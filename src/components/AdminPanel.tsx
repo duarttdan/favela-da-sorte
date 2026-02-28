@@ -153,12 +153,26 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
     if (!confirm(`Tem certeza que deseja remover "${username}" da equipe?`)) return;
 
     try {
+      // Primeiro, tentar deletar do Auth do Supabase (se possível)
+      // Nota: Isso requer permissões de admin no Supabase
+      
       const { error } = await supabase.from('users').delete().eq('id', id);
-      if (error) throw error;
+      
+      if (error) {
+        // Se o erro for de foreign key constraint
+        if (error.message.includes('foreign key constraint')) {
+          setError('⚠️ Erro: Execute o script FIX_DELETE_USER.sql no Supabase SQL Editor primeiro!');
+          console.error('Foreign key constraint error. Run FIX_DELETE_USER.sql');
+        } else {
+          throw error;
+        }
+        return;
+      }
       
       setSuccess(`Usuário "${username}" removido com sucesso!`);
       await loadUsers();
     } catch (error: any) {
+      console.error('Erro ao deletar usuário:', error);
       setError(error.message || 'Erro ao deletar usuário');
     }
   };

@@ -82,7 +82,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 4. Verificar migração
+-- 4. Corrigir foreign key constraint em audit_logs
+-- Dropar constraint antiga e recriar com ON DELETE SET NULL
+ALTER TABLE audit_logs 
+DROP CONSTRAINT IF EXISTS audit_logs_user_id_fkey;
+
+ALTER TABLE audit_logs 
+ADD CONSTRAINT audit_logs_user_id_fkey 
+FOREIGN KEY (user_id) 
+REFERENCES users(id) 
+ON DELETE SET NULL;
+
+-- 5. Verificar migração
 SELECT 
   role,
   COUNT(*) as total_usuarios

@@ -186,6 +186,16 @@ membro: "bg-gradient-to-r from-gray-600 to-slate-600" // Cinza
 
 ## 🐛 Troubleshooting
 
+### Problema: Erro ao deletar usuário (foreign key constraint)
+**Erro:** `update or delete on table "users" violates foreign key constraint "audit_logs_user_id_fkey"`
+
+**Solução:** Execute o script de correção no Supabase SQL Editor:
+```sql
+-- Copie e execute o arquivo: FIX_DELETE_USER.sql
+```
+
+Este script corrige as foreign keys para permitir exclusão de usuários mantendo o histórico de auditoria.
+
 ### Problema: Não consigo promover usuário
 **Solução:** Verifique se você tem cargo superior ao usuário que quer promover
 

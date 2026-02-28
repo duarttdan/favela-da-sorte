@@ -217,6 +217,22 @@ Se você já tem um sistema rodando com os cargos antigos:
 
 ## 🆘 Suporte
 
+### Erro ao Deletar Usuário
+
+Se você receber o erro:
+```
+update or delete on table "users" violates foreign key constraint
+```
+
+**Solução:**
+1. Abra o Supabase SQL Editor
+2. Execute o arquivo `FIX_DELETE_USER.sql`
+3. Tente deletar o usuário novamente
+
+Este erro ocorre porque os logs de auditoria estão vinculados aos usuários. O script corrige isso mantendo o histórico mas permitindo exclusões.
+
+### Outros Problemas
+
 Se tiver problemas:
 1. Verifique o console do navegador (F12)
 2. Confira as políticas RLS no Supabase
