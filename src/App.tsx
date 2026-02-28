@@ -2,13 +2,11 @@ import { useState, useEffect } from 'react';
 import { supabase, checkAuth, User } from './lib/supabase';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
-import { ChangePassword } from './components/ChangePassword';
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [needsPasswordChange, setNeedsPasswordChange] = useState(false);
 
   useEffect(() => {
     initializeApp();
@@ -30,11 +28,6 @@ export function App() {
         } else if (userData) {
           setCurrentUser(userData);
           
-          // Verificar se é primeiro login
-          if (userData.first_login !== false) {
-            setNeedsPasswordChange(true);
-          }
-          
           // Marca como online
           await supabase
             .from('users')
@@ -49,10 +42,6 @@ export function App() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePasswordChanged = () => {
-    setNeedsPasswordChange(false);
   };
 
   // Marca offline ao sair
@@ -110,14 +99,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {currentUser ? (
-        needsPasswordChange ? (
-          <ChangePassword 
-            isFirstLogin={true} 
-            onPasswordChanged={handlePasswordChanged}
-          />
-        ) : (
-          <Dashboard currentUser={currentUser} onUserUpdate={setCurrentUser} />
-        )
+        <Dashboard currentUser={currentUser} onUserUpdate={setCurrentUser} />
       ) : (
         <Auth onAuthSuccess={() => window.location.reload()} />
       )}

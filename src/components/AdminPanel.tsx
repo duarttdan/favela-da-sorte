@@ -87,12 +87,18 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
       }
 
       const username = email.split('@')[0];
-      const tempPassword = `Senha${Math.random().toString(36).slice(-6)}!`; // Senha temporária
+      
+      // Solicitar senha do admin
+      const userPassword = prompt('Digite a senha para o novo usuário (mínimo 6 caracteres):');
+      
+      if (!userPassword || userPassword.length < 6) {
+        throw new Error('Senha deve ter pelo menos 6 caracteres');
+      }
 
       // Criar usuário no Auth do Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
-        password: tempPassword,
+        password: userPassword,
         options: {
           emailRedirectTo: window.location.origin,
         }
@@ -114,20 +120,20 @@ export function AdminPanel({ currentUser }: { currentUser: SupabaseUser }) {
             role: role.toLowerCase(), 
             username: username,
             is_online: false,
-            first_login: true // Marcar como primeiro login
+            first_login: false // Já definir como false, senha é definitiva
           }
         ]);
 
         if (insertError) throw insertError;
 
-        setSuccess(`✅ Usuário criado!\n📧 Email: ${email}\n🔑 Senha: ${tempPassword}\n\n⚠️ COPIE ESTA SENHA AGORA!\n\n💡 O usuário será solicitado a trocar a senha no primeiro login.`);
+        setSuccess(`✅ Usuário criado com sucesso!\n📧 Email: ${email}\n👤 Usuário: ${username}\n🔑 Senha: ${userPassword}\n\n⚠️ ANOTE ESTA SENHA!`);
         setEmail('');
-        setRole('member');
+        setRole('membro');
         await loadUsers();
         
-        // Não fechar o modal para copiar a senha
+        // Não fechar o modal para copiar as informações
         setTimeout(() => {
-          if (confirm('Você copiou a senha? Clique OK para fechar.')) {
+          if (confirm('Você anotou as informações? Clique OK para fechar.')) {
             setShowCreateModal(false);
             setSuccess(null);
           }
