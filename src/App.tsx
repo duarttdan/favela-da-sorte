@@ -9,46 +9,43 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkUserSession = async () => {
-      try {
-        setError(null);
-        const authUser = await checkAuth();
-        
-        if (authUser) {
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', authUser.id)
-            .single();
-
-          if (userError) {
-            console.error('Erro ao buscar usuário:', userError);
-            throw userError;
-          }
-          
-          if (userData) {
-            setCurrentUser(userData);
-            // Marca usuário como online
-            await supabase
-              .from('users')
-              .update({ is_online: true })
-              .eq('id', userData.id);
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao verificar sessão:', error);
-        setError('Erro ao carregar sessão. Tente novamente.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUserSession();
+    initializeApp();
   }, []);
 
-  // Sistema anti-bug: Marca offline ao fechar a aba
+  const initializeApp = async () => {
+    try {
+      const authUser = await checkAuth();
+      
+      if (authUser) {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+
+        if (userError) {
+          console.error('Erro ao buscar usuário:', userError);
+        } else if (userData) {
+          setCurrentUser(userData);
+          // Marca como online
+          await supabase
+            .from('users')
+            .update({ is_online: true })
+            .eq('id', userData.id)
+            .then(() => console.log('Usuário marcado como online'));
+        }
+      }
+    } catch (error) {
+      console.error('Erro na inicialização:', error);
+      setError('Erro ao carregar. Verifique sua conexão.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Marca offline ao sair
   useEffect(() => {
-    const handleTabClose = async () => {
+    const handleBeforeUnload = async () => {
       if (currentUser) {
         await supabase
           .from('users')
@@ -57,45 +54,23 @@ export function App() {
       }
     };
 
-    window.addEventListener('beforeunload', handleTabClose);
-    return () => window.removeEventListener('beforeunload', handleTabClose);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [currentUser]);
-
-  // Listener para mudanças de autenticação
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event);
-        if (event === 'SIGNED_OUT') {
-          setCurrentUser(null);
-        } else if (event === 'SIGNED_IN' && session) {
-          // Recarregar dados do usuário
-          const { data: userData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (userData) {
-            setCurrentUser(userData);
-          }
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/20 border-t-white mx-auto mb-6"></div>
-            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-4 border-white/10 mx-auto"></div>
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-white/20 border-t-white mx-auto"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-20 w-20 border-4 border-white/10 mx-auto"></div>
           </div>
-          <p className="text-white text-lg font-black animate-pulse tracking-wider">
-            Carregando Favela da Sorte...
+          <p className="text-white text-xl font-black mt-6 animate-pulse">
+            Carregando Sistema...
+          </p>
+          <p className="text-white/60 text-sm mt-2">
+            Favela da Sorte - Sistema Empresarial
           </p>
         </div>
       </div>
@@ -106,12 +81,14 @@ export function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 to-pink-900 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl p-8 max-w-md text-center">
-          <p className="text-red-600 font-bold mb-4">{error}</p>
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-black text-gray-800 mb-4">Erro ao Carregar</h2>
+          <p className="text-red-600 font-medium mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors"
+            className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >
-            Recarregar Página
+            Tentar Novamente
           </button>
         </div>
       </div>
