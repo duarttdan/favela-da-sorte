@@ -11,7 +11,9 @@ import {
   Menu,
   X,
   Home,
-  FileText
+  FileText,
+  Target,
+  Bell
 } from 'lucide-react';
 
 import { DashboardHome } from './DashboardHome';
@@ -20,6 +22,8 @@ import { SalesPanel } from './SalesPanel';
 import { ItemsPanel } from './ItemsPanel';
 import { AdminPanel } from './AdminPanel';
 import { ReportsPanel } from './ReportsPanel';
+import { GoalsPanel } from './GoalsPanel';
+import { NotificationsPanel } from './NotificationsPanel';
 
 const RoleBadge = ({ role }: { role: string }) => {
   const styles: Record<string, string> = {
@@ -81,6 +85,10 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
         return <ItemsPanel />;
       case 'relatorios':
         return <ReportsPanel currentUser={currentUser} />;
+      case 'metas':
+        return <GoalsPanel currentUser={currentUser} />;
+      case 'notificacoes':
+        return <NotificationsPanel currentUser={currentUser} />;
       case 'admin': 
         return <AdminPanel currentUser={currentUser} />;
       default: 
@@ -92,7 +100,9 @@ export function Dashboard({ currentUser, onUserUpdate }: DashboardProps) {
     { id: 'home', label: 'Dashboard', icon: Home, show: true },
     { id: 'vendas', label: 'Vendas', icon: ShoppingCart, show: true },
     { id: 'itens', label: 'Itens', icon: Package, show: true },
+    { id: 'metas', label: 'Metas', icon: Target, show: true },
     { id: 'relatorios', label: 'Relatórios', icon: FileText, show: true },
+    { id: 'notificacoes', label: 'Notificações', icon: Bell, show: true },
     { id: 'contabilidade', label: 'Financeiro', icon: Calculator, show: currentUser.role === 'admin' || currentUser.role === 'setter' },
     { 
       id: 'admin', 
